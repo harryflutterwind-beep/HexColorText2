@@ -1,0 +1,59 @@
+[01:48:59] [main/INFO]: Setting user: Player860
+[01:49:00] [Client thread/INFO]: LWJGL Version: 2.9.1
+[01:49:08] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:§l§bHex§3Color§9Codes§r
+[01:49:09] [Sound Library Loader/INFO]: Sound engine started
+[01:49:09] [Client thread/INFO]: Created: 16x16 textures/blocks-atlas
+[01:49:09] [Client thread/INFO]: Created: 16x16 textures/items-atlas
+[01:49:09] [Client thread/INFO]: Reloading ResourceManager: Default, FMLFileResourcePack:Forge Mod Loader, FMLFileResourcePack:Minecraft Forge, FMLFileResourcePack:§l§bHex§3Color§9Codes§r
+[01:49:09] [Client thread/INFO]: Created: 512x256 textures/blocks-atlas
+[01:49:09] [Client thread/INFO]: Created: 256x256 textures/items-atlas
+[01:49:10] [Sound Library Loader/INFO]: Sound engine started
+[01:49:22] [Server thread/INFO]: Starting integrated minecraft server version 1.7.10
+[01:49:22] [Server thread/INFO]: Generating keypair
+[01:49:22] [Server thread/INFO]: Preparing start region for level 0
+[01:49:23] [Server thread/INFO]: Changing view distance to 12, from 10
+[01:49:23] [Server thread/INFO]: Player860[local:E:b3293b5b] logged in with entity id 390 at (72.67728502473464, 68.0, 233.26334070896854)
+[01:49:23] [Server thread/INFO]: Player860 joined the game
+[01:49:31] [Server thread/INFO]: <Player860> <#FF00FF>Hello World</#>
+[01:49:31] [Client thread/INFO]: [CHAT] <Player860> <#FF00FF>Hello World</#>
+[01:49:40] [Server thread/INFO]: <Player860> <grad #FF0000 #0000FF>Gradient Text</grad>
+[01:49:40] [Client thread/INFO]: [CHAT] <Player860> <grad #FF0000 #0000FF>Gradient Text</grad>
+[01:49:48] [Server thread/INFO]: <Player860> <rainbow>This is rainbow text</rainbow>
+[01:49:48] [Client thread/INFO]: [CHAT] <Player860> <rainbow>This is rainbow text</rainbow>
+[01:49:55] [Server thread/INFO]: <Player860> <pulse #FF00FF>Pulsing Violet</pulse>
+[01:49:55] [Client thread/INFO]: [CHAT] <Player860> <pulse #FF00FF>Pulsing Violet</pulse>
+[01:50:03] [Server thread/INFO]: <Player860> <wave type=b amp=2 speed=4><grad #F00 #0FF>Wavy Gradient</grad></wave>
+[01:50:03] [Client thread/INFO]: [CHAT] <Player860> <wave type=b amp=2 speed=4><grad #F00 #0FF>Wavy Gradient</grad></wave>
+[01:50:10] [Server thread/INFO]: <Player860> <wave type=e amp=3 speed=6><rbw>Floating Rainbow</rainbow></wave>
+[01:50:10] [Client thread/INFO]: [CHAT] <Player860> <wave type=e amp=3 speed=6><rbw>Floating Rainbow</rainbow></wave>
+[01:50:19] [Server thread/INFO]: <Player860> <zoom type=d><grad #F0F #0FF>Chaotic Zoom</grad></zoom>
+[01:50:19] [Client thread/INFO]: [CHAT] <Player860> <zoom type=d><grad #F0F #0FF>Chaotic Zoom</grad></zoom>
+[01:50:26] [Server thread/INFO]: <Player860> "<shake><rbw>Shaking Rainbow</rbw></shake>"
+[01:50:26] [Client thread/INFO]: [CHAT] <Player860> "<shake><rbw>Shaking Rainbow</rbw></shake>"
+[01:50:34] [Server thread/INFO]: <Player860> "<jitter ><pulse #F0Fcc>Glitch Pulse</pulse></jitter>"
+[01:50:34] [Client thread/INFO]: [CHAT] <Player860> "<jitter ><pulse #F0Fcc>Glitch Pulse</pulse></jitter>"
+[01:50:42] [Server thread/INFO]: <Player860> "<wobble amp=4 speed=3>Woooo</wobble>"
+[01:50:42] [Client thread/INFO]: [CHAT] <Player860> "<wobble amp=4 speed=3>Woooo</wobble>"
+[01:50:49] [Server thread/INFO]: <Player860> <wobble #ff0cc9 amp=4 speed=3>Woooo</wobble>
+[01:50:49] [Client thread/INFO]: [CHAT] <Player860> <wobble #ff0cc9 amp=4 speed=3>Woooo</wobble>
+[01:50:55] [Server thread/INFO]: <Player860> "<outline #0FF><rbw>Halo Rainbow</rainbow></outline>"
+[01:50:55] [Client thread/INFO]: [CHAT] <Player860> "<outline #0FF><rbw>Halo Rainbow</rainbow></outline>"
+[01:51:03] [Server thread/INFO]: <Player860> "<flicker speed=6>Flickering Text</flicker>"
+[01:51:03] [Client thread/INFO]: [CHAT] <Player860> "<flicker speed=6>Flickering Text</flicker>"
+[01:51:10] [Server thread/INFO]: <Player860> "<#FFD700><scroll speed=3>Scrolling Gold Text that is long enough to wrap to the second line</scroll></#>"
+[01:51:10] [Client thread/INFO]: [CHAT] <Player860> "<#FFD700><scroll speed=3>Scrolling Gold Text that is long enough to wrap to the second line</scroll></#>"
+[01:51:20] [Server thread/INFO]: <Player860> "<glitch intensity=3><rbw>Glitched Rainbow</rainbow></glitch>"
+[01:51:20] [Client thread/INFO]: [CHAT] <Player860> "<glitch intensity=3><rbw>Glitched Rainbow</rainbow></glitch>"
+[01:51:31] [Server thread/INFO]: <Player860> <grad #FFAA00 #FF00FF #00FFFF scroll=0.30>HexColorCodes <pulse #FFFFFF speed=1.4 amp=0.22>[DEBUG]</pulse> <rain #FF0000 #FFFF00 #00FF00 #00FFFF #0000FF #FF00FF cycles=1.5>rainbow section</rain> <wave mode=B amp=0.4 speed=1.8 >~~ wavy tail ~~</wave></grad>'
+[01:51:31] [Client thread/INFO]: [CHAT] <Player860> <grad #FFAA00 #FF00FF #00FFFF scroll=0.30>HexColorCodes <pulse #FFFFFF speed=1.4 amp=0.22>[DEBUG]</pulse> <rain #FF0000 #FFFF00 #00FF00 #00FFFF #0000FF #FF00FF cycles=1.5>rainbow section</rain> <wave mode=B amp=0.4 speed=1.8 >~~ wavy tail ~~</wave></grad>'
+[01:51:34] [Server thread/INFO]: Saving and pausing game...
+[01:51:34] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:51:34] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:51:34] [Server thread/INFO]: Saving chunks for level 'New World'/The End
+[01:54:37] [Client thread/INFO]: Stopping!
+[01:54:37] [Server thread/INFO]: Stopping server
+[01:54:37] [Server thread/INFO]: Saving players
+[01:54:37] [Server thread/INFO]: Saving worlds
+[01:54:37] [Server thread/INFO]: Saving chunks for level 'New World'/Overworld
+[01:54:37] [Server thread/INFO]: Saving chunks for level 'New World'/Nether
+[01:54:37] [Server thread/INFO]: Saving chunks for level 'New World'/The End

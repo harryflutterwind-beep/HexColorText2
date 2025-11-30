@@ -1,0 +1,17 @@
+[
+  {
+    "modid": "hexcolorcodes",
+    "name": "§l§bHex§3Color§9Codes§r",
+    "description": "§bAdds §lhex§r §rand §dgradients§r + §6rainbow§r colors to chat/HUD.\n§aAuto-detects §72JourneyMap §aGUIs to avoid layout issues.\n§7Ngl §fblow my §dshi §5smove §coff §6fam§r, *Updated Beam renders and commands*",
+    "version": "1.5.4",
+    "mcversion": "1.7.10",
+    "url": "https://discord.gg/KHeHrNcFQf",
+    "updateUrl": "",
+    "authorList": ["§bMr§3Poofy§9Pajamma§dPants§r"],
+    "credits": "§7Thanks to §3JM §7& §bForge §7communities§r",
+    "logoFile": "assets/hexcolorcodes/logo.png",
+    "screenshots": [],
+    "dependencies": [],
+    "useDependencyInformation": true
+  }
+]
