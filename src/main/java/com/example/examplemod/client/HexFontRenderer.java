@@ -625,30 +625,6 @@ public class HexFontRenderer extends FontRenderer {
         }
     }
 
-    private static boolean shouldBypassCustomRendering() {
-        if (!isForgeModListScreen() && !isForgeConfigGui()) {
-            if (isFromClassPrefix("net.minecraft.client.gui.GuiNewChat")) {
-                return false;
-            } else if (isFromClassPrefix("net.minecraft.client.gui.GuiIngame")) {
-                return false;
-            } else {
-                GuiScreen s = Minecraft.getMinecraft().currentScreen;
-                if (s == null) {
-                    return false;
-                } else if (s instanceof GuiChat) {
-                    return false;
-                } else if (s instanceof GuiInventory) {
-                    return false;
-                } else if (s instanceof GuiContainer) {
-                    return false;
-                } else {
-                    return isJourneyMapManageWaypointsScreen();
-                }
-            }
-        } else {
-            return true;
-        }
-    }
 
     private static boolean hasHexControls(String s) {
         return s != null && s.indexOf(167) >= 0 && s.contains("§#");
@@ -692,6 +668,11 @@ public class HexFontRenderer extends FontRenderer {
 
     @Override
     public int getStringWidth(String text) {
+        // CNPC GUIs must use vanilla metrics
+        if (isCustomNpcScreen()) {
+            return this.base.getStringWidth(text == null ? "" : text);
+        }
+
         if (text == null) {
             return 0;
         }
@@ -721,6 +702,11 @@ public class HexFontRenderer extends FontRenderer {
 
     @Override
     public String trimStringToWidth(String text, int width, boolean reverse) {
+        // CNPC GUIs must use vanilla trimming
+        if (isCustomNpcScreen()) {
+            return this.base.trimStringToWidth(text == null ? "" : text, width, reverse);
+        }
+
         // Leave special GUIs alone
         if (isForgeModListLike() || isJourneyMapManageWaypointsScreen()) {
             return this.base.trimStringToWidth(text, width, reverse);
@@ -875,6 +861,44 @@ public class HexFontRenderer extends FontRenderer {
 
         return getAnimatedTagName(tag) != null;
     }
+    private static boolean isCustomNpcScreen() {
+        GuiScreen s = Minecraft.getMinecraft().currentScreen;
+        if (s == null) return false;
+
+        String cn = s.getClass().getName();
+        // All CNPC GUIs live in these packages / names
+        if (cn.startsWith("noppes.npcs.client.gui")) return true;
+
+        String lc = cn.toLowerCase();
+        return lc.contains("noppes.npcs") || lc.contains("customnpc");
+    }
+
+    private static boolean shouldBypassCustomRendering() {
+        // Forge mod list / config → always bypass
+        if (isForgeModListScreen() || isForgeConfigGui()) {
+            return true;
+        }
+
+        // Our “special” renderers that SHOULD use Hex effects:
+        if (isFromClassPrefix("net.minecraft.client.gui.GuiNewChat")) return false;
+        if (isFromClassPrefix("net.minecraft.client.gui.GuiIngame")) return false;
+
+        GuiScreen s = Minecraft.getMinecraft().currentScreen;
+        if (s == null) return false;
+
+        if (s instanceof GuiChat)      return false;
+        if (s instanceof GuiInventory) return false;
+        if (s instanceof GuiContainer) return false;
+
+        // NEW: CustomNPCs → **always bypass**
+        if (isCustomNpcScreen()) return true;
+
+        // Journeymap waypoints etc → bypass
+        if (isJourneyMapManageWaypointsScreen()) return true;
+
+        return false;
+    }
+
 
     private static boolean isAnimatedCloseTag(String tag) {
         if (tag == null) return false;
@@ -1000,6 +1024,17 @@ public class HexFontRenderer extends FontRenderer {
     }
     @Override
     public List<String> listFormattedStringToWidth(String text, int width) {
+        // CNPC GUIs must use vanilla wrapping completely
+        if (isCustomNpcScreen()) {
+            // mimic vanilla null behaviour
+            if (text == null) {
+                List<String> out = new ArrayList<String>();
+                out.add("");
+                return out;
+            }
+            return this.base.listFormattedStringToWidth(text, width);
+        }
+
         // Safety / null behaviour identical to vanilla
         if (text == null) {
             List<String> out = new ArrayList<String>();
@@ -1014,9 +1049,7 @@ public class HexFontRenderer extends FontRenderer {
         if (isJourneyMapManageWaypointsScreen()) {
             return this.base.listFormattedStringToWidth(text, width);
         }
-        if (!looksLikeOurSyntax(text)) {
-            return this.base.listFormattedStringToWidth(text, width);
-        }
+
         // If it DOESN'T look like our <grad>/<wave>/etc syntax,
         // don't touch it – let vanilla handle colors & wrapping.
         if (!looksLikeOurSyntax(text)) {
@@ -1413,6 +1446,11 @@ public class HexFontRenderer extends FontRenderer {
 
     @Override
     public int drawString(String text, int x, int y, int color, boolean shadow) {
+        // ⬅ NEW: never use HexFontRenderer inside CNPC GUIs
+        if (isCustomNpcScreen()) {
+            return this.base.drawString(text, x, y, color, shadow);
+        }
+
         if (isForgeModListLike()) {
             return this.base.drawString(text, x, y, color, shadow);
         }
@@ -1423,7 +1461,7 @@ public class HexFontRenderer extends FontRenderer {
             return this.base.drawString(text, x, y, color, shadow);
         }
 
-        // NEW: if it does NOT look like our <grad>/<wave>/etc syntax, bail out
+        // If it does NOT look like our <grad>/<wave>/etc syntax, bail out
         if (!looksLikeOurSyntax(text)) {
             return this.base.drawString(text, x, y, color, shadow);
         }
@@ -1434,6 +1472,11 @@ public class HexFontRenderer extends FontRenderer {
 
     @Override
     public int drawStringWithShadow(String text, int x, int y, int color) {
+        // Never use HexFontRenderer inside CNPC GUIs
+        if (isCustomNpcScreen()) {
+            return this.base.drawStringWithShadow(text, x, y, color);
+        }
+
         if (isForgeModListLike()) {
             return this.base.drawStringWithShadow(text, x, y, color);
         }
@@ -1444,6 +1487,10 @@ public class HexFontRenderer extends FontRenderer {
             return this.base.drawStringWithShadow(text, x, y, color);
         }
 
+        // If it does NOT look like our <grad>/<wave>/etc syntax, bail out
+        if (!looksLikeOurSyntax(text)) {
+            return this.base.drawStringWithShadow(text, x, y, color);
+        }
 
         // Only our tagged messages reach here
         return this.drawHexAware(text, x, y, color, true);
