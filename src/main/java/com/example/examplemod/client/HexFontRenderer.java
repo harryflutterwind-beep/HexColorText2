@@ -866,12 +866,42 @@ public class HexFontRenderer extends FontRenderer {
         if (s == null) return false;
 
         String cn = s.getClass().getName();
-        // All CNPC GUIs live in these packages / names
-        if (cn.startsWith("noppes.npcs.client.gui")) return true;
-
         String lc = cn.toLowerCase();
-        return lc.contains("noppes.npcs") || lc.contains("customnpc");
+
+        // --------------------------------------------------------
+        // 1) EXPLICITLY SKIP SCRIPT / SCRIPTER GUIs
+        //    → we *do not* want to disable HexFont globally
+        //      just because the Scripter tool is open.
+        // --------------------------------------------------------
+        if (cn.startsWith("noppes.npcs.scripted.gui")
+                || lc.contains("scriptgui")
+                || lc.contains("guiscript")
+                || lc.contains("scriptconsole")
+                || lc.contains("scriptlanguages")
+                || lc.contains("scriptmenu")) {
+            return false;
+        }
+
+        // --------------------------------------------------------
+        // 2) Normal CNPC client GUIs (dialogs, editors, etc.)
+        //    These should still bypass HexFont like before.
+        // --------------------------------------------------------
+        if (cn.startsWith("noppes.npcs.client.gui")) {
+            return true;
+        }
+
+        // --------------------------------------------------------
+        // 3) Fallback for any other CNPC GUIs that aren’t in the
+        //    usual package, but are *not* script-related.
+        // --------------------------------------------------------
+        if ((lc.contains("noppes.npcs") || lc.contains("customnpc"))
+                && !lc.contains("script")) {
+            return true;
+        }
+
+        return false;
     }
+
 
     private static boolean shouldBypassCustomRendering() {
         // Forge mod list / config → always bypass
