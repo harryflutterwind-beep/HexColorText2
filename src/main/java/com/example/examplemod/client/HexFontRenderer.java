@@ -886,18 +886,18 @@ public class HexFontRenderer extends FontRenderer {
         // 2) Normal CNPC client GUIs (dialogs, editors, etc.)
         //    These should still bypass HexFont like before.
         // --------------------------------------------------------
-        if (cn.startsWith("noppes.npcs.client.gui")) {
-            return true;
-        }
+       // if (cn.startsWith("noppes.npcs.client.gui")) {
+         //   return true;
+       // }
 
         // --------------------------------------------------------
         // 3) Fallback for any other CNPC GUIs that aren’t in the
         //    usual package, but are *not* script-related.
         // --------------------------------------------------------
-        if ((lc.contains("noppes.npcs") || lc.contains("customnpc"))
-                && !lc.contains("script")) {
-            return true;
-        }
+       // if ((lc.contains("noppes.npcs") || lc.contains("customnpc"))
+        //        && !lc.contains("script")) {
+        //    return true;
+      //  }
 
         return false;
     }
@@ -1651,8 +1651,12 @@ public class HexFontRenderer extends FontRenderer {
                             op.pulseOn,
                             op.pulseAmp,
                             op.pulseSpeed,
+                            op.scrollStops,
+                            op.scrollRgb,
+                            op.scrollMix,
                             fmt
                     );
+
 
                     legacy.colorRgb = saved;
                     cursorX += adv;
@@ -1902,7 +1906,9 @@ public class HexFontRenderer extends FontRenderer {
 
     private int drawGradientMulti(String s, int x, int y, int[] stops, boolean shadow,
                                   boolean scroll, float speed, boolean pulseOn,
-                                  float pulseAmp, float pulseSpeed, String legacyFmt) {
+                                  float pulseAmp, float pulseSpeed,
+                                  int[] scrollStops, int scrollRgb, float scrollMix,
+                                  String legacyFmt) {
 
         s = cleanPayload(s);
         LegacyState local = new LegacyState();
@@ -1922,6 +1928,10 @@ public class HexFontRenderer extends FontRenderer {
         int len = s.length();
         int segments = stops.length - 1;
 
+        boolean hasOverlayStops = (scrollStops != null && scrollStops.length >= 2);
+        boolean hasOverlaySolid = (scrollRgb >= 0);
+        boolean useOverlay = scroll && speed > 0.0F && (hasOverlayStops || hasOverlaySolid);
+
         float phase = (scroll && speed > 0.0F)
                 ? (timeSeconds() * speed) % 1.0F
                 : 0.0F;
@@ -1933,15 +1943,44 @@ public class HexFontRenderer extends FontRenderer {
             vMul = clamp01(1.0F - pulseAmp + pulseAmp * p);
         }
 
-        for (int i = 0; i < len; i++) {
-            float t = (len <= 1) ? 0.0F : (float) i / (float) (len - 1);
-            t = (t + phase) % 1.0F;
+        scrollMix = clamp01(scrollMix);
 
-            float segPos = t * (float) segments;
+        for (int i = 0; i < len; i++) {
+            float tBase = (len <= 1) ? 0.0F : (float) i / (float) (len - 1);
+
+            // Base gradient position:
+            // - If we *don’t* have an overlay, keep old behavior (base scrolls).
+            // - If we *do* have an overlay, base stays static and only overlay scrolls.
+            float tGrad = tBase;
+            if (!useOverlay && scroll && speed > 0.0F) {
+                tGrad = (tBase + phase) % 1.0F;
+            }
+
+            float segPos = tGrad * (float) segments;
             int si = Math.min((int) Math.floor(segPos), segments - 1);
             float lt = segPos - si;
 
-            int rgb = lerpRGB(stops[si], stops[si + 1], lt);
+            int baseRgb = lerpRGB(stops[si], stops[si + 1], lt);
+            int rgb = baseRgb;
+
+            // ---- Overlay scroll (optional) ----
+            if (useOverlay) {
+                int overlayRgb = baseRgb;
+
+                if (hasOverlayStops) {
+                    int oSegs = scrollStops.length - 1;
+                    float tOver = (tBase + phase) % 1.0F;
+                    float segPosO = tOver * (float) oSegs;
+                    int oi = Math.min((int) Math.floor(segPosO), oSegs - 1);
+                    float lot = segPosO - oi;
+                    overlayRgb = lerpRGB(scrollStops[oi], scrollStops[oi + 1], lot);
+                } else if (hasOverlaySolid) {
+                    overlayRgb = scrollRgb;
+                }
+
+                // Blend overlay into base
+                rgb = lerpRGB(baseRgb, overlayRgb, scrollMix);
+            }
 
             int rI = (rgb >> 16) & 255;
             int gI = (rgb >> 8) & 255;
@@ -2789,15 +2828,59 @@ public class HexFontRenderer extends FontRenderer {
 
     private static void parseGradAnimArgs(String attrs, Op out) {
         if (attrs != null) {
+            // main scroll speed (same as before)
             Matcher kv = Pattern.compile("(?i)\\b(scroll)\\s*=\\s*([\\d.]+)").matcher(attrs);
             if (kv.find()) {
                 out.scroll = true;
                 out.speed = Math.max(0.0F, parseFloatSafe(kv.group(2), 0.0F));
             }
 
+            // optional: solid color used only for the scrolling overlay
+            // e.g. scrollrgb=#FF2BA6
+            Matcher cSolid = Pattern.compile("(?i)\\bscrollrgb\\s*=\\s*#([0-9a-f]{3}|[0-9a-f]{6})").matcher(attrs);
+            if (cSolid.find()) {
+                out.scrollRgb = parseHexRGB(cSolid.group(1));
+            }
+
+            // optional: second gradient just for the scroll overlay
+            // e.g. scrollgrad=#FF2BA6,#FF66CF,#FF2BA6
+            Matcher cGrad = Pattern.compile("(?i)\\bscrollgrad\\s*=\\s*([^\\s>]+)").matcher(attrs);
+            if (cGrad.find()) {
+                String list = cGrad.group(1);
+                String[] parts = list.split("[,;]+");
+                java.util.ArrayList<Integer> cols = new java.util.ArrayList<Integer>();
+                for (String p : parts) {
+                    if (p == null) continue;
+                    p = p.trim();
+                    if (p.isEmpty()) continue;
+                    if (p.charAt(0) == '#') p = p.substring(1);
+                    if (p.matches("(?i)[0-9a-f]{3}|[0-9a-f]{6}")) {
+                        cols.add(parseHexRGB(p));
+                    }
+                }
+                if (cols.size() >= 2) {
+                    out.scrollStops = new int[cols.size()];
+                    for (int i = 0; i < cols.size(); i++) {
+                        out.scrollStops[i] = cols.get(i);
+                    }
+                } else if (cols.size() == 1) {
+                    // degrade to solid
+                    out.scrollRgb = cols.get(0);
+                }
+            }
+
+            // optional: how strongly the overlay is blended (0–1)
+            // e.g. scrollmix=0.6
+            Matcher cMix = Pattern.compile("(?i)\\bscrollmix\\s*=\\s*([\\d.]+)").matcher(attrs);
+            if (cMix.find()) {
+                out.scrollMix = clamp01(parseFloatSafe(cMix.group(1), out.scrollMix));
+            }
+
+            // existing pulse inline support
             parsePulseParamsInline(attrs, out);
         }
     }
+
 
     private static void parseRainbowSpeed(String attrs, Op out) {
         if (attrs != null) {
@@ -3910,6 +3993,9 @@ public class HexFontRenderer extends FontRenderer {
         float pulseSpeed;
         String legacyFromTag;
 
+        int[] scrollStops = null;
+        int   scrollRgb   = -1;
+        float scrollMix   = 0.5F;
         // ──────────────────────────────
         // NEW minimal fields so new Kinds don't break
         // ──────────────────────────────
@@ -3951,6 +4037,9 @@ public class HexFontRenderer extends FontRenderer {
             this.pulseOn    = false;
             this.pulseAmp   = 0.0F;
             this.pulseSpeed = 1.0F;
+            this.scrollStops = null;
+            this.scrollRgb   = -1;
+            this.scrollMix   = 0.5F;
             this.rgb        = -1;
         }
     }
