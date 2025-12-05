@@ -1654,8 +1654,15 @@ public class HexFontRenderer extends FontRenderer {
                             op.scrollStops,
                             op.scrollRgb,
                             op.scrollMix,
+                            op.gradWave,
+                            op.gradWaveAmp,
+                            op.gradWaveSpeed,
+                            op.gradRain,
+                            op.gradRainAmp,
+                            op.gradRainSpeed,
                             fmt
                     );
+
 
 
                     legacy.colorRgb = saved;
@@ -1908,7 +1915,10 @@ public class HexFontRenderer extends FontRenderer {
                                   boolean scroll, float speed, boolean pulseOn,
                                   float pulseAmp, float pulseSpeed,
                                   int[] scrollStops, int scrollRgb, float scrollMix,
+                                  boolean gradWave, float gradWaveAmp, float gradWaveSpeed,
+                                  boolean gradRain, float gradRainAmp, float gradRainSpeed,
                                   String legacyFmt) {
+
 
         s = cleanPayload(s);
         LegacyState local = new LegacyState();
@@ -2005,7 +2015,22 @@ public class HexFontRenderer extends FontRenderer {
 
             String prefix = legacyPrefix(local);
 
-            this.base.drawString(prefix + ch, (int) fx, y, rgb, shadow);
+            // ---- gradient motion (wave / rain) ----
+            int yOffset = y;
+            if (gradWave) {
+                // same feel as drawWave(...)
+                float t = timeSeconds();
+                float dy = (float) Math.sin((t * gradWaveSpeed) + (i * 0.4F)) * gradWaveAmp;
+                yOffset = (int) (y + dy);
+            } else if (gradRain) {
+                // same feel as drawRain(...)
+                float t = timeSeconds();
+                float dy = (float) (Math.sin((t * gradRainSpeed) + i) * gradRainAmp);
+                yOffset = (int) (y + dy);
+            }
+
+            this.base.drawString(prefix + ch, (int) fx, yOffset, rgb, shadow);
+
             fx += this.base.getCharWidth(ch);
 
             if (local.obfOnce) {
@@ -2867,6 +2892,38 @@ public class HexFontRenderer extends FontRenderer {
                     // degrade to solid
                     out.scrollRgb = cols.get(0);
                 }
+            }
+            // optional: wave motion for gradient text
+            //   waveamp=2.0   wavespeed=6.0
+            Matcher wAmp = Pattern.compile("(?i)\\bwaveamp\\s*=\\s*([\\d.]+)").matcher(attrs);
+            if (wAmp.find()) {
+                out.gradWave = true;
+                out.gradWaveAmp = parseFloatSafe(wAmp.group(1), out.gradWaveAmp);
+            }
+
+            Matcher wSpeed = Pattern.compile("(?i)\\bwavespeed\\s*=\\s*([\\d.]+)").matcher(attrs);
+            if (wSpeed.find()) {
+                out.gradWave = true;
+                out.gradWaveSpeed = parseFloatSafe(wSpeed.group(1), out.gradWaveSpeed);
+            }
+
+            // optional: rain motion for gradient text
+            //   rainamp=4.0   rainspeed=8.0
+            Matcher rAmp = Pattern.compile("(?i)\\brainamp\\s*=\\s*([\\d.]+)").matcher(attrs);
+            if (rAmp.find()) {
+                out.gradRain = true;
+                out.gradRainAmp = parseFloatSafe(rAmp.group(1), out.gradRainAmp);
+            }
+
+            Matcher rSpeed = Pattern.compile("(?i)\\brainspeed\\s*=\\s*([\\d.]+)").matcher(attrs);
+            if (rSpeed.find()) {
+                out.gradRain = true;
+                out.gradRainSpeed = parseFloatSafe(rSpeed.group(1), out.gradRainSpeed);
+            }
+
+            // if rain is specified, let it win over wave
+            if (out.gradRain) {
+                out.gradWave = false;
             }
 
             // optional: how strongly the overlay is blended (0–1)
@@ -3996,6 +4053,14 @@ public class HexFontRenderer extends FontRenderer {
         int[] scrollStops = null;
         int   scrollRgb   = -1;
         float scrollMix   = 0.5F;
+        // motion for gradient text (wave / rain)
+        boolean gradWave  = false;
+        boolean gradRain  = false;
+        float   gradWaveAmp   = 2.0F;
+        float   gradWaveSpeed = 6.0F;
+        float   gradRainAmp   = 4.0F;
+        float   gradRainSpeed = 8.0F;
+
         // ──────────────────────────────
         // NEW minimal fields so new Kinds don't break
         // ──────────────────────────────
@@ -4040,6 +4105,12 @@ public class HexFontRenderer extends FontRenderer {
             this.scrollStops = null;
             this.scrollRgb   = -1;
             this.scrollMix   = 0.5F;
+            this.gradWave      = false;
+            this.gradRain      = false;
+            this.gradWaveAmp   = 2.0F;
+            this.gradWaveSpeed = 6.0F;
+            this.gradRainAmp   = 4.0F;
+            this.gradRainSpeed = 8.0F;
             this.rgb        = -1;
         }
     }
